@@ -157,6 +157,11 @@ export class LobbyScene {
     await RoomApi.create(this.roomId);
     this.net = await createNet(this.roomId, true);
     this.state = 'waiting';
+    if (typeof wx !== 'undefined' && wx.onShareAppMessage) {
+      // 右上角菜单转发也带上房号
+      wx.onShareAppMessage(() => ({ title: '来虫虫大战跟我 SOLO！房间号 ' + this.roomId, query: 'roomId=' + this.roomId }));
+      if (wx.showShareMenu) wx.showShareMenu({});
+    }
     if (typeof wx !== 'undefined' && wx.shareAppMessage) {
       wx.shareAppMessage({ title: '来虫虫大战跟我 SOLO！房间号 ' + this.roomId, query: 'roomId=' + this.roomId });
     }

@@ -92,6 +92,18 @@ export function boot() {
     refreshLayout(canvas);
     app.resize();
   }
+  // 微信：分享卡片携带 roomId 时直接进大厅加房
+  if (IS_WX) {
+    const openRoom = (q) => {
+      if (!q || !q.roomId) return;
+      if (app.current && app.current.constructor === BattleScene) return; // 对局中不打断
+      if (app.lastRoomQuery === q.roomId && app.current && app.current.constructor === LobbyScene) return;
+      app.lastRoomQuery = String(q.roomId);
+      app.switchScene('lobby', { autoJoin: String(q.roomId) });
+    };
+    try { openRoom((wx.getLaunchOptionsSync() || {}).query); } catch (_) {}
+    try { wx.onShow(res => openRoom(res && res.query)); } catch (_) {}
+  }
   let last = 0;
   function frame(t) {
     const dt = Math.min(((t - last) || 16) / 1000, 0.05);

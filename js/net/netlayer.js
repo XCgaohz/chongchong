@@ -67,10 +67,19 @@ export class WxCloudNet {
   close() { try { this.watch && this.watch.close(); } catch (_) {} }
 }
 
+// 云能力初始化（wx.cloud.init 全局只需一次）
+let cloudInited = false;
+function ensureCloudInit() {
+  if (!cloudInited && typeof wx !== 'undefined' && wx.cloud) {
+    try { wx.cloud.init({ traceUser: true }); cloudInited = true; } catch (_) {}
+  }
+  return cloudInited;
+}
+
 // 云端房间操作（走云函数，浏览器 mock 下用 localStorage 模拟）
 export const RoomApi = {
   async create(roomId) {
-    if (IS_WX && wx.cloud) {
+    if (IS_WX && wx.cloud && ensureCloudInit()) {
       return wx.cloud.callFunction({ name: 'room-create', data: { roomId } });
     }
     // 浏览器 mock
@@ -80,7 +89,7 @@ export const RoomApi = {
     return { ok: true };
   },
   async join(roomId) {
-    if (IS_WX && wx.cloud) {
+    if (IS_WX && wx.cloud && ensureCloudInit()) {
       return wx.cloud.callFunction({ name: 'room-join', data: { roomId } });
     }
     const rooms = storage.get('cc_mock_rooms', {});
@@ -95,7 +104,7 @@ export function genRoomId() {
 
 // 创建网络层：真实环境用云开发（需 appid 已开通云），否则浏览器广播
 export async function createNet(roomId, isHost) {
-  if (IS_WX && wx.cloud && wx.cloud.database) {
+  if (IS_WX && wx.cloud && ensureCloudInit()) {
     const net = new WxCloudNet(roomId, isHost, wx.cloud.database());
     await net.init();
     return net;
