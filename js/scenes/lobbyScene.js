@@ -186,7 +186,9 @@ export class LobbyScene {
     this.err = '';
     const jr = await RoomApi.join(id);
     if (!jr || !jr.ok) { this.err = (jr && jr.err) || '加入失败'; return; }
-    this.net = await createNet(id, false);
+    try {
+      this.net = await createNet(id, false);
+    } catch (e) { this.err = '联机通道创建失败'; return; }
     this.roomId = id;
     this.net.onMessage(m => {
       if (m.t === 'welcome') {
