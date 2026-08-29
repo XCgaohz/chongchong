@@ -3,9 +3,23 @@
 const wxApi = typeof wx !== 'undefined' ? wx : null;
 export const IS_WX = !!wxApi;
 
-// 竖屏模拟横屏：手机浏览器竖持时把画面旋转 90° 渲染（H5 端）
+// 竖屏模拟横屏：仅手机类设备（触屏 + 短边≤520px）竖持时旋转画面（H5 端）
+// 平板/桌面端不受影响；URL 加 ?sim=1 可强制开启、?sim=0 强制关闭（调试用）
 let simLandscape = false;
 export function isSimLandscape() { return simLandscape; }
+
+let coarsePointer = null;
+function phoneLike() {
+  if (coarsePointer === null) {
+    coarsePointer = !!(window.matchMedia && window.matchMedia('(pointer: coarse)').matches);
+    try {
+      const q = new URLSearchParams(location.search).get('sim');
+      if (q === '1') coarsePointer = true;
+      else if (q === '0') coarsePointer = false;
+    } catch (_) {}
+  }
+  return coarsePointer && Math.min(window.innerWidth, window.innerHeight) <= 520;
+}
 
 let cachedInfo = null;
 
@@ -41,7 +55,7 @@ export function invalidateSystemInfo() { cachedInfo = null; }
 export function refreshLayout(canvas) {
   if (wxApi || !canvas) return;
   const w = window.innerWidth, h = window.innerHeight;
-  const portrait = h > w;
+  const portrait = phoneLike() && h > w;
   if (portrait !== simLandscape) {
     simLandscape = portrait;
     invalidateSystemInfo();
