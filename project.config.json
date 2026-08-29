@@ -1,0 +1,21 @@
+{
+  "description": "虫虫大战 - 回合制炮术对战小游戏",
+  "appid": "touristappid",
+  "compileType": "game",
+  "cloudfunctionRoot": "cloudfunctions/",
+  "libVersion": "2.33.0",
+  "projectname": "chongchong",
+  "setting": {
+    "es6": true,
+    "enhance": true,
+    "postcss": false,
+    "minified": true,
+    "urlCheck": false,
+    "coverView": true,
+    "lazyloadPlaceholderEnable": false,
+    "ignoreUploadUnusedFiles": true
+  },
+  "simulatorType": "wechat",
+  "simulatorPluginLibVersion": {},
+  "condition": {}
+}

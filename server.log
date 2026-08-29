@@ -1,0 +1,121 @@
+127.0.0.1 - - [29/Aug/2026 01:13:34] "GET /web/index.html HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2026 01:13:34] "GET /game.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2026 01:13:35] "GET /js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2026 01:13:35] "GET /js/core/audio.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2026 01:13:35] "GET /js/platform.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2026 01:13:35] "GET /js/scenes/homeScene.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2026 01:13:35] "GET /js/scenes/battleScene.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2026 01:13:35] "GET /js/core/camera.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2026 01:13:35] "GET /js/battle/battle.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2026 01:13:35] "GET /js/ai/controller.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2026 01:13:35] "GET /js/core/particles.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2026 01:13:35] "GET /js/ui/hud.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2026 01:13:35] "GET /js/core/constants.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2026 01:13:35] "GET /js/weapons/weapons.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2026 01:13:35] "GET /js/core/mathutil.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2026 01:13:35] "GET /js/meta/modes.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2026 01:13:35] "GET /js/core/terrain.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2026 01:13:35] "GET /js/entities/projectile.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2026 01:13:35] "GET /js/entities/bug.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2026 01:13:35] "GET /js/meta/species.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2026 01:13:41] code 404, message File not found
+127.0.0.1 - - [29/Aug/2026 01:13:41] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [29/Aug/2026 01:14:26] code 404, message File not found
+127.0.0.1 - - [29/Aug/2026 01:14:26] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [29/Aug/2026 01:15:08] code 404, message File not found
+127.0.0.1 - - [29/Aug/2026 01:15:08] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [29/Aug/2026 01:15:32] code 404, message File not found
+127.0.0.1 - - [29/Aug/2026 01:15:32] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [29/Aug/2026 01:16:54] "GET /web/index.html HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:16:54] "GET /js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2026 01:16:54] "GET /js/scenes/homeScene.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:16:54] "GET /js/scenes/battleScene.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:16:54] "GET /js/meta/modes.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:16:54] "GET /js/battle/battle.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:16:54] "GET /js/core/constants.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:16:54] "GET /js/ui/hud.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:16:54] "GET /js/ai/controller.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:16:54] "GET /js/weapons/weapons.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:16:54] "GET /js/entities/bug.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:16:54] "GET /js/entities/projectile.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:16:54] "GET /js/meta/species.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:16:59] code 404, message File not found
+127.0.0.1 - - [29/Aug/2026 01:16:59] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [29/Aug/2026 01:17:22] code 404, message File not found
+127.0.0.1 - - [29/Aug/2026 01:17:22] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [29/Aug/2026 01:18:14] "GET /web/index.html HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:18:14] "GET /game.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:18:14] "GET /js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:18:14] "GET /js/core/audio.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:18:14] "GET /js/platform.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:18:14] "GET /js/scenes/homeScene.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:18:14] "GET /js/scenes/battleScene.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:18:14] "GET /js/meta/modes.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:18:14] "GET /js/core/mathutil.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:18:14] "GET /js/core/camera.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:18:14] "GET /js/core/particles.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:18:14] "GET /js/ui/hud.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2026 01:18:14] "GET /js/ai/controller.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:18:14] "GET /js/core/terrain.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:18:19] code 404, message File not found
+127.0.0.1 - - [29/Aug/2026 01:18:19] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [29/Aug/2026 01:18:35] code 404, message File not found
+127.0.0.1 - - [29/Aug/2026 01:18:35] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [29/Aug/2026 01:18:47] code 404, message File not found
+127.0.0.1 - - [29/Aug/2026 01:18:47] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [29/Aug/2026 01:20:55] "GET /web/index.html HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:20:55] "GET /js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:20:55] "GET /js/scenes/homeScene.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:20:55] "GET /js/scenes/battleScene.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:20:55] "GET /js/meta/modes.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:20:55] "GET /js/battle/battle.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:20:55] "GET /js/core/constants.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:20:55] "GET /js/ui/hud.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2026 01:20:55] "GET /js/ai/controller.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:20:55] "GET /js/weapons/weapons.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:20:55] "GET /js/entities/bug.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:20:55] "GET /js/entities/projectile.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:20:55] "GET /js/meta/species.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:21:00] code 404, message File not found
+127.0.0.1 - - [29/Aug/2026 01:21:00] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [29/Aug/2026 01:21:35] code 404, message File not found
+127.0.0.1 - - [29/Aug/2026 01:21:35] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [29/Aug/2026 01:22:41] code 404, message File not found
+127.0.0.1 - - [29/Aug/2026 01:22:41] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [29/Aug/2026 01:23:43] code 404, message File not found
+127.0.0.1 - - [29/Aug/2026 01:23:43] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [29/Aug/2026 01:24:00] code 404, message File not found
+127.0.0.1 - - [29/Aug/2026 01:24:00] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [29/Aug/2026 01:24:45] code 404, message File not found
+127.0.0.1 - - [29/Aug/2026 01:24:45] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [29/Aug/2026 01:25:00] "GET /web/index.html HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:25:00] "GET /game.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:25:00] "GET /js/main.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2026 01:25:00] "GET /js/platform.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:25:00] "GET /js/core/audio.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:25:00] "GET /js/scenes/homeScene.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:25:01] "GET /js/scenes/battleScene.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:25:01] "GET /js/meta/modes.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:25:01] "GET /js/core/mathutil.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:25:01] "GET /js/battle/battle.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:25:01] "GET /js/core/camera.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:25:01] "GET /js/core/particles.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:25:01] "GET /js/core/constants.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:25:01] "GET /js/ui/hud.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:25:01] "GET /js/ai/controller.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:25:01] "GET /js/weapons/weapons.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:25:01] "GET /js/core/terrain.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:25:01] "GET /js/entities/bug.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:25:01] "GET /js/entities/projectile.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:25:01] "GET /js/meta/species.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:25:06] code 404, message File not found
+127.0.0.1 - - [29/Aug/2026 01:25:06] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [29/Aug/2026 01:25:44] "GET /web/index.html HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:25:45] "GET /js/main.js HTTP/1.1" 304 -
+127.0.0.1 - - [29/Aug/2026 01:25:45] "GET /js/ui/hud.js HTTP/1.1" 200 -
+127.0.0.1 - - [29/Aug/2026 01:25:50] code 404, message File not found
+127.0.0.1 - - [29/Aug/2026 01:25:50] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [29/Aug/2026 01:26:15] code 404, message File not found
+127.0.0.1 - - [29/Aug/2026 01:26:15] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [29/Aug/2026 01:26:53] code 404, message File not found
+127.0.0.1 - - [29/Aug/2026 01:26:53] "GET /favicon.ico HTTP/1.1" 404 -
