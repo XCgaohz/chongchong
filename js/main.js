@@ -1,7 +1,7 @@
 // 主循环与场景管理
 import {
   createScreenCanvas, initTouch, onTouch, onKey,
-  getSystemInfo, invalidateSystemInfo, requestAnimationFrame, storage, vibrate, IS_WX
+  getSystemInfo, invalidateSystemInfo, refreshLayout, requestAnimationFrame, storage, vibrate, IS_WX
 } from './platform.js';
 import { Sfx } from './core/audio.js';
 import { HomeScene } from './scenes/homeScene.js';
@@ -86,7 +86,11 @@ export function boot() {
   onTouch('end', pts => app.onPoint('end', pts));
   onKey((k, down) => app.onKey(k, down));
   if (!IS_WX && typeof window !== 'undefined') {
-    window.addEventListener('resize', () => app.resize());
+    const onReflow = () => { refreshLayout(app.canvas); app.resize(); };
+    window.addEventListener('resize', onReflow);
+    window.addEventListener('orientationchange', onReflow);
+    refreshLayout(canvas);
+    app.resize();
   }
   let last = 0;
   function frame(t) {

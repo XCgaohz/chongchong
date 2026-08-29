@@ -3,6 +3,10 @@
 const wxApi = typeof wx !== 'undefined' ? wx : null;
 export const IS_WX = !!wxApi;
 
+// 竖屏模拟横屏：手机浏览器竖持时把画面旋转 90° 渲染（H5 端）
+let simLandscape = false;
+export function isSimLandscape() { return simLandscape; }
+
 let cachedInfo = null;
 
 export function getSystemInfo() {
@@ -17,11 +21,13 @@ export function getSystemInfo() {
         platform: si.platform || 'wechat'
       };
     } else {
+      const w = window.innerWidth, h = window.innerHeight;
       cachedInfo = {
-        width: window.innerWidth,
-        height: window.innerHeight,
+        // 模拟横屏时逻辑尺寸对调
+        width: simLandscape ? h : w,
+        height: simLandscape ? w : h,
         pixelRatio: Math.min(window.devicePixelRatio || 1, 2),
-        safeArea: { top: 0, bottom: window.innerHeight, left: 0, right: window.innerWidth },
+        safeArea: { top: 0, bottom: simLandscape ? w : h, left: 0, right: simLandscape ? h : w },
         platform: 'browser'
       };
     }
@@ -30,6 +36,34 @@ export function getSystemInfo() {
 }
 
 export function invalidateSystemInfo() { cachedInfo = null; }
+
+// 竖屏时旋转画布铺满视口（rotate 90° around top-left，画布放右缘外翻进来）
+export function refreshLayout(canvas) {
+  if (wxApi || !canvas) return;
+  const w = window.innerWidth, h = window.innerHeight;
+  const portrait = h > w;
+  if (portrait !== simLandscape) {
+    simLandscape = portrait;
+    invalidateSystemInfo();
+  }
+  const st = canvas.style;
+  if (simLandscape) {
+    st.position = 'absolute';
+    st.left = w + 'px';
+    st.top = '0';
+    st.width = h + 'px';
+    st.height = w + 'px';
+    st.transform = 'rotate(90deg)';
+    st.transformOrigin = 'left top';
+  } else {
+    st.position = 'fixed';
+    st.left = '0';
+    st.top = '0';
+    st.width = '100%';
+    st.height = '100%';
+    st.transform = 'none';
+  }
+}
 
 // 注意：微信小游戏里第一次 createCanvas() 返回的是上屏 canvas
 let screenCanvasCreated = false;
@@ -77,7 +111,11 @@ export function initTouch(canvas) {
     wxApi.onTouchEnd(e => dispatchTouch('end', normalizeWxPoints(e, 'end')));
     wxApi.onTouchCancel(e => dispatchTouch('end', normalizeWxPoints(e, 'end')));
   } else {
-    const pt = e => [{ id: e.pointerId ?? 0, x: e.clientX, y: e.clientY }];
+    // 模拟横屏时坐标换算：画布坐标 x=clientY, y=innerWidth-clientX
+    const pt = e => {
+      if (simLandscape) return [{ id: e.pointerId ?? 0, x: e.clientY, y: window.innerWidth - e.clientX }];
+      return [{ id: e.pointerId ?? 0, x: e.clientX, y: e.clientY }];
+    };
     canvas.addEventListener('pointerdown', e => {
       try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
       dispatchTouch('start', pt(e));
