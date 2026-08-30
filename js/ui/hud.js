@@ -82,37 +82,37 @@ export class HUD {
     for (let ti = 0; ti < b.teams.length; ti++) {
       const team = b.teams[ti];
       const bugs = b.teamBugs[ti];
-      const pw = 30 + bugs.length * 40;
+      const pw = 40 + bugs.length * 46;
       ctx.fillStyle = 'rgba(10,20,35,0.55)';
-      rr(ctx, px, 8, pw, 38, 9); ctx.fill();
+      rr(ctx, px, 8, pw, 44, 10); ctx.fill();
       if (ti === b.turnTeam && !b.over) {
-        ctx.strokeStyle = team.color; ctx.lineWidth = 2;
-        rr(ctx, px, 8, pw, 38, 9); ctx.stroke();
+        ctx.strokeStyle = team.color; ctx.lineWidth = 2.5;
+        rr(ctx, px, 8, pw, 44, 10); ctx.stroke();
       }
-      let wx = px + 8;
+      let wx = px + 10;
       ctx.fillStyle = '#fff';
-      ctx.font = 'bold 10px sans-serif';
+      ctx.font = 'bold 14px sans-serif';
       ctx.textAlign = 'left';
-      ctx.fillText(team.name, wx, 19);
+      ctx.fillText(team.name, wx, 23);
       wx += 4;
       for (const w of bugs) {
-        const bx = wx + 14, by = 31;
+        const bx = wx + 15, by = 35;
         ctx.globalAlpha = w.dead ? 0.25 : 1;
         ctx.fillStyle = w.dead ? '#555' : w.color;
-        ctx.beginPath(); ctx.arc(bx, by, 7, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(bx, by, 8.5, 0, Math.PI * 2); ctx.fill();
         if (w === active && !w.dead) {
-          ctx.strokeStyle = '#ffe94d'; ctx.lineWidth = 2;
-          ctx.beginPath(); ctx.arc(bx, by, 8.5 + Math.sin(t * 6) * 0.8, 0, Math.PI * 2); ctx.stroke();
+          ctx.strokeStyle = '#ffe94d'; ctx.lineWidth = 2.5;
+          ctx.beginPath(); ctx.arc(bx, by, 10 + Math.sin(t * 6) * 0.8, 0, Math.PI * 2); ctx.stroke();
         }
         if (!w.dead) {
           const pct = w.hp / w.maxHp;
           ctx.fillStyle = 'rgba(0,0,0,0.5)';
-          ctx.fillRect(bx - 8, by + 9, 16, 3);
+          ctx.fillRect(bx - 11, by + 11, 22, 4);
           ctx.fillStyle = pct > 0.55 ? '#5ad35a' : pct > 0.25 ? '#ffc94d' : '#ff5a5a';
-          ctx.fillRect(bx - 8, by + 9, 16 * pct, 3);
+          ctx.fillRect(bx - 11, by + 11, 22 * pct, 4);
         }
         ctx.globalAlpha = 1;
-        wx += 40;
+        wx += 46;
       }
       px += pw + 8;
     }
@@ -122,26 +122,26 @@ export class HUD {
     if (!b.over) {
       const tt = Math.max(0, b.timeLeft);
       ctx.fillStyle = 'rgba(10,20,35,0.55)';
-      rr(ctx, cx - 105, 8, 210, 34, 9); ctx.fill();
+      rr(ctx, cx - 120, 8, 240, 44, 10); ctx.fill();
       // 计时条
       const frac = Math.max(0, tt / b.turnTime);
       ctx.fillStyle = 'rgba(255,255,255,0.15)';
-      rr(ctx, cx - 95, 22, 120, 10, 5); ctx.fill();
+      rr(ctx, cx - 108, 26, 130, 12, 6); ctx.fill();
       ctx.fillStyle = tt < 6 ? '#ff5a5a' : '#5ad35a';
-      rr(ctx, cx - 95, 22, 120 * frac, 10, 5); ctx.fill();
+      rr(ctx, cx - 108, 26, 130 * frac, 12, 6); ctx.fill();
       ctx.fillStyle = '#fff';
-      ctx.font = 'bold 11px sans-serif';
+      ctx.font = 'bold 14px sans-serif';
       ctx.textAlign = 'center';
-      ctx.fillText(Math.ceil(tt) + 's', cx - 95 + 60, 30);
+      ctx.fillText(Math.ceil(tt) + 's', cx - 108 + 65, 36);
       // 风向
       const wind = b.wind;
-      const wx0 = cx + 45, wy = 27;
-      ctx.fillStyle = 'rgba(255,255,255,0.9)';
-      ctx.font = '10px sans-serif';
-      ctx.fillText('风', wx0 - 14, wy + 4);
-      const wl = wind * 40;
+      const wx0 = cx + 50, wy = 31;
+      ctx.fillStyle = 'rgba(255,255,255,0.95)';
+      ctx.font = 'bold 13px sans-serif';
+      ctx.fillText('风', wx0 - 16, wy + 5);
+      const wl = wind * 42;
       ctx.strokeStyle = '#9fd8ff';
-      ctx.lineWidth = 3;
+      ctx.lineWidth = 3.5;
       ctx.beginPath();
       ctx.moveTo(wx0, wy); ctx.lineTo(wx0 + wl, wy);
       ctx.stroke();
@@ -149,9 +149,9 @@ export class HUD {
         const d = Math.sign(wl);
         ctx.fillStyle = '#9fd8ff';
         ctx.beginPath();
-        ctx.moveTo(wx0 + wl + d * 8, wy);
-        ctx.lineTo(wx0 + wl, wy - 4.5);
-        ctx.lineTo(wx0 + wl, wy + 4.5);
+        ctx.moveTo(wx0 + wl + d * 9, wy);
+        ctx.lineTo(wx0 + wl, wy - 5);
+        ctx.lineTo(wx0 + wl, wy + 5);
         ctx.fill();
       }
     }
@@ -179,13 +179,13 @@ export class HUD {
     if (this.toast) {
       const a = Math.min(1, this.toastT);
       ctx.globalAlpha = a;
-      ctx.font = 'bold 16px sans-serif';
-      const tw = ctx.measureText(this.toast).width + 32;
+      ctx.font = 'bold 19px sans-serif';
+      const tw = ctx.measureText(this.toast).width + 36;
       ctx.fillStyle = 'rgba(10,20,35,0.75)';
-      rr(ctx, cx - tw / 2, H * 0.24 - 16, tw, 30, 15); ctx.fill();
+      rr(ctx, cx - tw / 2, H * 0.24 - 18, tw, 34, 17); ctx.fill();
       ctx.fillStyle = '#fff';
       ctx.textAlign = 'center';
-      ctx.fillText(this.toast, cx, H * 0.24 + 4);
+      ctx.fillText(this.toast, cx, H * 0.24 + 5);
       ctx.globalAlpha = 1;
     }
 
@@ -277,7 +277,7 @@ export class HUD {
       ctx.restore();
       if (!def.ammoInf) {
         ctx.fillStyle = usable ? '#fff' : '#999';
-        ctx.font = 'bold 10px sans-serif';
+        ctx.font = 'bold 13px sans-serif';
         ctx.textAlign = 'right';
         ctx.fillText(String(ammo), ix + iconS - 4, iy + iconS - 4);
       }

@@ -47,7 +47,7 @@ good(`共检查 ${files.length} 个 JS 文件、${importCount} 条 import 全部
 const banned = /\b(window\.|document\.|localStorage|BroadcastChannel|require\()/;
 for (const f of files) {
   const norm = f.split(path.sep).join('/');
-  if (norm.includes('platform.js') || norm.includes('netlayer.js')) continue;
+  if (norm.includes('platform.js') || norm.includes('netlayer.js') || norm.includes('/vendor/')) continue;
   const src = fs.readFileSync(f, 'utf8');
   const lines = src.split('\n');
   lines.forEach((ln, i) => {

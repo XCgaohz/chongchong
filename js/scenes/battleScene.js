@@ -634,14 +634,14 @@ export class BattleScene {
 
     const surv = b.bugs.filter(w => !w.dead).length;
     ctx.fillStyle = '#6b6b6b';
-    ctx.font = '14px sans-serif';
+    ctx.font = '17px sans-serif';
     const lines = this.mode === 'campaign'
       ? (winner === 0 ? [`第 ${this.stage} 关通关！`]
                       : ['虫虫们全军覆没了…', this.endOverlay.coins ? `获得 ${this.endOverlay.coins} 金币（闯关进度从头开始）` : '再接再厉！'])
       : this.mode === 'online'
         ? [this.endOverlay.coins ? `获得 ${this.endOverlay.coins} 金币` : (this.endOverlay.quit ? '对方退出了对局' : '')]
         : [`场上还剩 ${surv} 只虫子`];
-    lines.forEach((s, i) => ctx.fillText(s, W / 2, py + 88 + i * 22));
+    lines.forEach((s, i) => ctx.fillText(s, W / 2, py + 88 + i * 25));
 
     const btns = [];
     if (this.mode === 'campaign' && winner === 0) btns.push(['next', '下一关', '#ff9f43']);
@@ -678,7 +678,7 @@ export class BattleScene {
     ctx.font = 'bold 26px sans-serif';
     ctx.fillText(`第 ${this.stage} 关完成！`, W / 2, py + 42);
     ctx.fillStyle = '#6b6b6b';
-    ctx.font = '14px sans-serif';
+    ctx.font = '17px sans-serif';
     ctx.fillText(`+${ov.coins} 金币 · 选择一项强化（本局持续）`, W / 2, py + 66);
 
     // 三张卡

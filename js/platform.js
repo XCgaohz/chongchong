@@ -158,6 +158,67 @@ if (!wxApi) {
 }
 export function isKey(k) { return keys.has(k); }
 
+// 文本输入：微信用原生 modal（editable），浏览器用 DOM 浮层
+export function promptText(title, defaultValue) {
+  return new Promise(resolve => {
+    if (wxApi) {
+      try {
+        wxApi.showModal({
+          title,
+          editable: true,
+          placeholderText: defaultValue || '',
+          success: r => resolve(r.confirm ? ((r.content || '').trim() || defaultValue) : null),
+          fail: () => resolve(null)
+        });
+      } catch (_) { resolve(null); }
+      return;
+    }
+    const overlay = document.createElement('div');
+    Object.assign(overlay.style, {
+      position: 'fixed', left: '0', top: '0', width: '100%', height: '100%',
+      background: 'rgba(8,14,26,0.6)', zIndex: '9999',
+      display: 'flex', alignItems: 'center', justifyContent: 'center'
+    });
+    const card = document.createElement('div');
+    Object.assign(card.style, {
+      background: '#fff8ec', borderRadius: '14px', padding: '22px 26px',
+      boxShadow: '0 6px 24px rgba(0,0,0,0.35)', textAlign: 'center', minWidth: '260px'
+    });
+    const label = document.createElement('div');
+    label.textContent = title;
+    Object.assign(label.style, { fontSize: '17px', fontWeight: 'bold', color: '#4a3b28', marginBottom: '12px' });
+    const input = document.createElement('input');
+    input.value = defaultValue || '';
+    input.maxLength = 8;
+    Object.assign(input.style, {
+      width: '220px', fontSize: '18px', padding: '8px 10px', borderRadius: '8px',
+      border: '2px solid #e2c893', outline: 'none', textAlign: 'center', display: 'block'
+    });
+    const btnRow = document.createElement('div');
+    btnRow.style.marginTop = '14px';
+    const mkBtn = (text, bg) => {
+      const b = document.createElement('button');
+      b.textContent = text;
+      Object.assign(b.style, {
+        fontSize: '16px', fontWeight: 'bold', color: '#fff', background: bg,
+        border: 'none', borderRadius: '8px', padding: '9px 22px', margin: '0 6px', cursor: 'pointer'
+      });
+      return b;
+    };
+    const done = val => { overlay.remove(); resolve(val); };
+    const okBtn = mkBtn('确定', '#ff9f43');
+    const cancelBtn = mkBtn('取消', '#8fa3bd');
+    okBtn.onclick = () => done((input.value.trim() || defaultValue || '').slice(0, 8));
+    cancelBtn.onclick = () => done(null);
+    input.onkeydown = e => { if (e.key === 'Enter') okBtn.click(); };
+    btnRow.appendChild(cancelBtn); btnRow.appendChild(okBtn);
+    card.appendChild(label); card.appendChild(input); card.appendChild(btnRow);
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
+    input.focus();
+  });
+}
+
 // ---------- 存储 ----------
 export const storage = {
   get(k, d) {

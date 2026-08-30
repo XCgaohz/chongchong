@@ -4,6 +4,7 @@ import { SPECIES, SKINS } from './species.js';
 export const DEFAULT_PROGRESS = {
   coins: 0,
   bestStage: 1,
+  name: '',
   unlocked: ['ant'],
   squad: ['ant', 'ant', 'ant'],
   skins: {},                        // speciesKey -> skinId

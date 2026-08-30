@@ -102,7 +102,7 @@ export class HomeScene {
       ctx.strokeStyle = 'rgba(0,0,0,0.18)'; ctx.lineWidth = 2;
       rr(ctx, bx, by, bw, bh, 13); ctx.stroke();
       ctx.fillStyle = '#fff';
-      ctx.font = `bold ${bh * 0.38}px sans-serif`;
+      ctx.font = `bold ${bh * 0.42}px sans-serif`;
       ctx.fillText(locked ? label + ' 🔒' : label, bx + bw / 2, by + bh * 0.64);
       this.btns[k] = { x: bx, y: by, w: bw, h: bh };
       by += bh + Math.min(14, H * 0.024);
@@ -122,7 +122,7 @@ export class HomeScene {
       ctx.globalAlpha = 1;
     }
     // 版本
-    ctx.font = '11px sans-serif';
+    ctx.font = '13px sans-serif';
     ctx.fillStyle = 'rgba(60,35,10,0.5)';
     ctx.textAlign = 'left';
     ctx.fillText(`v0.3 · 金币 ${this.app.progress.coins} · 最远第 ${this.app.progress.bestStage} 关`, 10, H - 10);
@@ -252,7 +252,7 @@ export class HomeScene {
         bx += bw + 14;
       }
       ctx.fillStyle = '#999';
-      ctx.font = '13px sans-serif';
+      ctx.font = '15px sans-serif';
       ctx.fillText('同一台手机轮流行动，同屏轮流对战玩法', W / 2, py + 158);
       ctx.fillStyle = '#8fa3bd';
       rr(ctx, W / 2 - 60, py + ph - 54, 120, 38, 10); ctx.fill();

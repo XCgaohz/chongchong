@@ -1,6 +1,7 @@
 // 好友对战大厅：创建房间 / 输入房号加入 / 等待对手
 import { RoomApi, genRoomId, createNet } from '../net/netlayer.js';
 import { talentModifiers } from '../meta/progress.js';
+import { promptText } from '../platform.js';
 
 function rr(ctx, x, y, w, h, r) {
   r = Math.min(r, w / 2, h / 2);
@@ -16,13 +17,13 @@ function rr(ctx, x, y, w, h, r) {
 function sideOf(p) {
   const species = p.squad.slice(0, 3);
   while (species.length < 3) species.push('ant');
-  return { species, skins: p.skins };
+  return { species, skins: p.skins, name: p.name || '' };
 }
 
 function buildTeams(hostSide, guestSide) {
   return [
-    Object.assign({ name: '红队', color: '#ff5a5a', dark: '#a33636', controller: 'human' }, hostSide),
-    Object.assign({ name: '蓝队', color: '#4da3ff', dark: '#2d5f9e', controller: 'human' }, guestSide)
+    Object.assign({ name: hostSide.name ? hostSide.name + '的虫队' : '红队', color: '#ff5a5a', dark: '#a33636', controller: 'human' }, hostSide),
+    Object.assign({ name: guestSide.name ? guestSide.name + '的虫队' : '蓝队', color: '#4da3ff', dark: '#2d5f9e', controller: 'human' }, guestSide)
   ];
 }
 
@@ -58,23 +59,29 @@ export class LobbyScene {
     if (this.state === 'menu') {
       ctx.fillStyle = '#5b4632';
       ctx.font = `bold ${Math.min(46, H * 0.1)}px sans-serif`;
-      ctx.fillText('好友对战', W / 2, H * 0.26);
-      const bw = Math.min(280, W * 0.4), bh = Math.min(64, H * 0.12);
+      ctx.fillText('好友对战', W / 2, H * 0.22);
+      // 名字行（点击改名）
+      const nm = this.app.progress.name || '未命名虫友';
+      ctx.fillStyle = '#3d6ea5';
+      ctx.font = 'bold 19px sans-serif';
+      ctx.fillText(`你的名字：${nm}`, W / 2, H * 0.315);
+      this.btns.name = { x: W / 2 - 130, y: H * 0.315 - 24, w: 260, h: 30 };
+      const bw = Math.min(280, W * 0.4), bh = Math.min(60, H * 0.115);
       ctx.fillStyle = '#ff9f43';
-      rr(ctx, W / 2 - bw / 2, H * 0.42, bw, bh, 14); ctx.fill();
+      rr(ctx, W / 2 - bw / 2, H * 0.40, bw, bh, 14); ctx.fill();
       ctx.fillStyle = '#fff';
       ctx.font = `bold ${bh * 0.36}px sans-serif`;
-      ctx.fillText('创建房间', W / 2, H * 0.42 + bh * 0.63);
-      this.btns.create = { x: W / 2 - bw / 2, y: H * 0.42, w: bw, h: bh };
+      ctx.fillText('创建房间', W / 2, H * 0.40 + bh * 0.63);
+      this.btns.create = { x: W / 2 - bw / 2, y: H * 0.40, w: bw, h: bh };
       ctx.fillStyle = '#5aa9ff';
-      rr(ctx, W / 2 - bw / 2, H * 0.42 + bh + 18, bw, bh, 14); ctx.fill();
+      rr(ctx, W / 2 - bw / 2, H * 0.40 + bh + 16, bw, bh, 14); ctx.fill();
       ctx.fillStyle = '#fff';
-      ctx.fillText('加入房间', W / 2, H * 0.42 + bh + 18 + bh * 0.63);
-      this.btns.join = { x: W / 2 - bw / 2, y: H * 0.42 + bh + 18, w: bw, h: bh };
+      ctx.fillText('加入房间', W / 2, H * 0.40 + bh + 16 + bh * 0.63);
+      this.btns.join = { x: W / 2 - bw / 2, y: H * 0.40 + bh + 16, w: bw, h: bh };
       ctx.fillStyle = '#5b4632';
-      ctx.font = 'bold 18px sans-serif';
-      ctx.fillText('返回主页', W / 2, H * 0.42 + bh * 2 + 70);
-      this.btns.back = { x: W / 2 - 70, y: H * 0.42 + bh * 2 + 44, w: 140, h: 36 };
+      ctx.font = 'bold 19px sans-serif';
+      ctx.fillText('返回主页', W / 2, H * 0.40 + bh * 2 + 66);
+      this.btns.back = { x: W / 2 - 70, y: H * 0.40 + bh * 2 + 40, w: 140, h: 36 };
     } else if (this.state === 'waiting') {
       // 房主等待页
       ctx.fillStyle = '#5b4632';
@@ -205,13 +212,23 @@ export class LobbyScene {
     this.err = '已发送加入请求，等待房主确认…';
   }
 
-  onPoint(type, x, y) {
+  async onPoint(type, x, y) {
     this.app.sfx.unlock();
     if (type !== 'start') return;
     const hit = (r) => r && x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h;
 
     if (this.state === 'menu') {
-      if (hit(this.btns.create)) { this.app.sfx.play('click'); this.startHost().catch(e => { this.err = String(e.message || e); }); }
+      if (hit(this.btns.name)) {
+        this.app.sfx.play('click');
+        const cur = this.app.progress.name || '';
+        const val = await promptText('输入你的名字（8字内）', cur);
+        if (val != null) {
+          this.app.progress.name = val;
+          this.app.saveProgress();
+          this.app.sfx.play('pickup');
+        }
+      }
+      else if (hit(this.btns.create)) { this.app.sfx.play('click'); this.startHost().catch(e => { this.err = String(e.message || e); }); }
       else if (hit(this.btns.join)) { this.app.sfx.play('click'); this.state = 'joining'; this.input = ''; }
       else if (hit(this.btns.back)) { this.app.sfx.play('click'); this.app.switchScene('home'); }
     } else if (this.state === 'waiting') {

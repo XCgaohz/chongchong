@@ -401,18 +401,18 @@ export class Bug {
 
     // HP 条 + 名字
     const pct = this.hp / this.maxHp;
-    const barW = 30, barY = by - 24;
+    const barW = 36, barY = by - 27;
     ctx.fillStyle = 'rgba(0,0,0,0.45)';
-    ctx.fillRect(bx - barW / 2 - 1, barY - 1, barW + 2, 6);
+    ctx.fillRect(bx - barW / 2 - 1, barY - 1, barW + 2, 7);
     ctx.fillStyle = pct > 0.55 ? '#5ad35a' : pct > 0.25 ? '#ffc94d' : '#ff5a5a';
-    ctx.fillRect(bx - barW / 2, barY, barW * pct, 4);
-    ctx.font = '9px sans-serif';
+    ctx.fillRect(bx - barW / 2, barY, barW * pct, 5);
+    ctx.font = 'bold 12px sans-serif';
     ctx.textAlign = 'center';
     ctx.fillStyle = '#fff';
     ctx.strokeStyle = 'rgba(0,0,0,0.6)';
-    ctx.lineWidth = 2.5;
-    ctx.strokeText(this.name, bx, barY - 4);
-    ctx.fillText(this.name, bx, barY - 4);
+    ctx.lineWidth = 3;
+    ctx.strokeText(this.name, bx, barY - 5);
+    ctx.fillText(this.name, bx, barY - 5);
 
     // 行动标记
     if (opts.active) {
