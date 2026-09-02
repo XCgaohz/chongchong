@@ -197,8 +197,9 @@ export class HUD {
     R.moveL = { x: margin, y: by, w: bs, h: bs };
     R.moveR = { x: margin + bs + 8, y: by, w: bs, h: bs };
     R.jump = { x: margin + bs * 2 + 16, y: by, w: bs * 0.82, h: bs * 0.82 };
-    this.drawBtn(ctx, R.moveL, '◀', this.moveHeld === -1);
-    this.drawBtn(ctx, R.moveR, '▶', this.moveHeld === 1);
+    const chargingAim = humanCtrl && active && active.charging; // 蓄力中：左右按钮=调角度
+    this.drawBtn(ctx, R.moveL, '◀', this.moveHeld === -1, 1, chargingAim ? '#ffe94d' : null);
+    this.drawBtn(ctx, R.moveR, '▶', this.moveHeld === 1, 1, chargingAim ? '#ffe94d' : null);
     this.drawBtn(ctx, R.jump, '↑', false, 0.8);
 
     // 右侧：开火 + 技能 + 跳过
@@ -285,10 +286,10 @@ export class HUD {
     }
   }
 
-  drawBtn(ctx, r, label, held, scale = 1) {
+  drawBtn(ctx, r, label, held, scale = 1, stroke = null) {
     ctx.fillStyle = held ? 'rgba(255,225,90,0.4)' : 'rgba(10,20,35,0.55)';
     rr(ctx, r.x, r.y, r.w, r.h, 10); ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.35)'; ctx.lineWidth = 1.5;
+    ctx.strokeStyle = stroke || 'rgba(255,255,255,0.35)'; ctx.lineWidth = stroke ? 2.5 : 1.5;
     rr(ctx, r.x, r.y, r.w, r.h, 10); ctx.stroke();
     ctx.fillStyle = '#fff';
     ctx.font = `bold ${r.h * 0.55 * scale}px sans-serif`;

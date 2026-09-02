@@ -270,12 +270,25 @@ export class BattleScene {
       else if (act.act === 'fireUp') this.releaseFire();
       return;
     }
-    // 拖动/点击空白处瞄准
-    if (type !== 'end' && this.humanTurn() && b.phase === 'play') {
-      const w = this.cam.screenToWorld(x, y, this.vw, this.vh);
-      const bug = b.activeBug;
-      const dx = w.x - bug.x, dy = w.y - bug.y;
-      if (dx * dx + dy * dy > 150) bug.aim = Math.atan2(dy, dx);
+    // 空白处：按住拖动=横移相机；轻点=瞄准
+    if (type === 'start') {
+      this.camDrag = { sx: x, sy: y, base: this.cam.panX, moved: false };
+      return;
+    }
+    const d = this.camDrag;
+    if (!d) return;
+    if (type === 'move') {
+      const dx = x - d.sx, dy = y - d.sy;
+      if (!d.moved && dx * dx + dy * dy > 144) d.moved = true; // 12px 内算轻点
+      if (d.moved) this.cam.panX = d.base - dx / this.cam.zoom;
+    } else { // end
+      if (!d.moved && this.humanTurn() && b.phase === 'play') {
+        const w = this.cam.screenToWorld(x, y, this.vw, this.vh);
+        const bug = b.activeBug;
+        const dx = w.x - bug.x, dy = w.y - bug.y;
+        if (dx * dx + dy * dy > 150) bug.aim = Math.atan2(dy, dx);
+      }
+      this.camDrag = null;
     }
   }
 
@@ -285,6 +298,7 @@ export class BattleScene {
     if (!bug) return;
     if (this.humanTurn() && b.phase === 'play' && bug.charging) {
       bug.charging = false;
+      this.cam.panX = 0; // 发射后相机回中，跟随子弹
       b.fire(this.hud.getSelWeapon(b.turnTeam), bug.aim, Math.max(0.12, bug.charge));
     } else {
       bug.charging = false;
@@ -318,7 +332,13 @@ export class BattleScene {
     if (isKey('a') || isKey('ArrowLeft')) dir -= 1;
     if (isKey('d') || isKey('ArrowRight')) dir += 1;
     if (dir === 0) dir = this.hud.moveHeld;
-    bug.wantMove = dir;
+    if (bug.charging) {
+      // 蓄力中：左右输入转为调角度（不移动）
+      if (dir) bug.aim += dir * dt * 2.2;
+      bug.wantMove = 0;
+    } else {
+      bug.wantMove = dir;
+    }
     if (isKey('ArrowUp')) bug.aim -= dt * 1.8;
     if (isKey('ArrowDown')) bug.aim += dt * 1.8;
   }
@@ -334,6 +354,9 @@ export class BattleScene {
     }
     this.time += dt;
     this.cam.update(dt, this.vw, this.vh, b.worldW, b.worldH);
+    // 回合/当前虫切换或结算时，玩家横移的相机回弹到跟随目标
+    const turnKey = b.turnTeam + ':' + (b.activeBug ? b.activeBug.id : -1);
+    if (turnKey !== this.camTurnKey || this.endOverlay) { this.camTurnKey = turnKey; this.cam.panX = 0; }
     this.flashT = Math.max(0, this.flashT - dt * 1.7);
     for (const c of this.clouds) { c.x += c.v * dt; if (c.x > 1.25) c.x = -0.25; }
 
@@ -474,7 +497,7 @@ export class BattleScene {
     ];
     for (const L of layers) {
       ctx.save();
-      ctx.translate(this.cam.x * (1 - L.f), 0);
+      ctx.translate((this.cam.x + this.cam.panX) * (1 - L.f), 0);
       ctx.fillStyle = L.color;
       ctx.beginPath();
       ctx.moveTo(-b.worldW * 0.6, b.worldH + 60);
