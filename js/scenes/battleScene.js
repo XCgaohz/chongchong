@@ -84,6 +84,7 @@ export class BattleScene {
     this.vw = app.vw; this.vh = app.vh;
     this.freeTouches = new Map(); // 空白处触摸（捏合缩放用，HUD 按钮上的手指不计入）
     this.pinch = null;            // 双指缩放状态 {d0,z0,wx}
+    this.camHoldT = 0; this.camHoldX = 0; this.camHoldY = 0; // 爆炸后镜头停留
     this.time = 0;
     // 首次操作提示（新触屏操作较多，展示一次）
     this.hud.toast = '拖屏移视角 · 双指缩放 · 抬/压调角度';
@@ -158,7 +159,7 @@ export class BattleScene {
     switch (e.type) {
       case 'turnStart':
         if (this.hud) this.hud.bannerT = 0;
-        if (this.cam && e.bug) this.cam.snapTo(e.bug.x, e.bug.y - 70);
+        if (this.cam) { this.cam.snapTo(e.bug ? e.bug.x : this.cam.x, e.bug ? e.bug.y - 70 : this.cam.y); this.camHoldT = 0; }
         if (this.mode === 'hotseat' && b && b.teams[e.team] && b.teams[e.team].controller === 'human' && !b.over) {
           this.passOverlay = { team: e.team };
         }
@@ -171,6 +172,11 @@ export class BattleScene {
         if (this.cam) {
           this.cam.addShake(Math.min(16, e.r / 4.5));
           if (!e.silent) this.cam.addPunch(Math.min(0.07, e.r / 1100));
+        }
+        if (!e.silent) {
+          // 爆炸点镜头停留，留时间看清伤害数字与击杀
+          this.camHoldT = e.r >= 42 ? 1.6 : 1.1;
+          this.camHoldX = e.x; this.camHoldY = e.y;
         }
         if (!e.silent && e.r >= 42) this.hitStop = 0.05; // 大爆炸瞬间时间冻结
         if (!e.silent) this.app.sfx.play(e.boom === 'bigboom' ? 'bigboom' : 'boom');
@@ -416,9 +422,13 @@ export class BattleScene {
       n++;
     }
 
-    // 相机跟随
+    // 相机跟随：爆炸停留 > 空袭飞机 > 飞行子弹 > 当前虫子
     let tx = null, ty = null;
-    if (b.pendingAirstrike) { tx = b.pendingAirstrike.planeX; ty = b.pendingAirstrike.planeY + 150; }
+    if (this.camHoldT > 0) {
+      this.camHoldT -= dt;
+      tx = this.camHoldX; ty = this.camHoldY;
+    }
+    else if (b.pendingAirstrike) { tx = b.pendingAirstrike.planeX; ty = b.pendingAirstrike.planeY + 150; }
     else if (b.projectiles.length) { const p = b.projectiles[b.projectiles.length - 1]; tx = p.x; ty = p.y; }
     else if (b.activeBug && !b.activeBug.dead) { tx = b.activeBug.x; ty = b.activeBug.y - 60; }
     if (tx != null) this.cam.follow(tx, ty, 0.07);
