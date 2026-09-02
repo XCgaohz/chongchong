@@ -143,6 +143,13 @@ export class BattleScene {
           this.hud.showToast('对方退出了对局');
         }
         break;
+      case 'boom':
+        // 行动方权威爆炸：清掉本地视觉子弹，按对方参数重放（弹坑/伤害/击退完全一致）
+        if (m.turn === b.turnCount && !b.over) {
+          b.projectiles.length = 0;
+          b.explode(m.x, m.y, m.r, m.dmg, m.knock, m.team, { force: true, boom: m.boom });
+        }
+        break;
     }
   }
 
@@ -212,6 +219,12 @@ export class BattleScene {
         // 联机：本地队开火 → 广播指令给对手重放
         if (this.mode === 'online' && b.turnTeam === this.myTeam && this.net) {
           this.net.send({ t: 'fire', team: b.turnTeam, weapon: e.weapon, angle: +Number(e.angle).toFixed(4), power: +Number(e.power).toFixed(3) });
+        }
+        break;
+      case 'boomNet':
+        // 联机：本地（行动方）每一次爆炸 → 广播权威爆点给对手
+        if (this.mode === 'online' && this.net) {
+          this.net.send({ t: 'boom', turn: b.turnCount, x: +e.x.toFixed(1), y: +e.y.toFixed(1), r: e.r, dmg: e.dmg, knock: e.knock, team: e.ownerTeam, boom: e.boom });
         }
         break;
       case 'turnEnd':
@@ -390,6 +403,8 @@ export class BattleScene {
   // ---------- 更新 ----------
   update(dt) {
     const b = this.battle;
+    // 联机：观战回合本地爆炸只做视觉（netGhost），权威爆点由行动方广播
+    if (this.mode === 'online') b.netGhost = b.turnTeam !== this.myTeam;
     // 命中停顿：除了 HUD 一切冻结，放大打击感
     if (this.hitStop > 0) {
       this.hitStop -= dt;

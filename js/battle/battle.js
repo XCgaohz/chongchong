@@ -30,6 +30,7 @@ export class Battle {
     this.crashes = 0;
     this.particles = null; // 由场景注入（粒子系统）
     this.pendingAirstrike = null;
+    this.netGhost = false; // 联机观战方：本地爆炸短路，弹坑/伤害以行动方广播的 boom 为准
 
     this.wind = 0;
     this.turnCount = 0;
@@ -246,8 +247,13 @@ export class Battle {
 
   // ---------- 爆炸与伤害 ----------
   explode(x, y, r, dmg, knock, ownerTeam, opts = {}) {
+    // 联机观战方：本地弹道只是视觉预演，真实爆炸等行动方广播的 boom（跨设备浮点差异不再影响弹坑）
+    if (this.netGhost && !opts.force) return;
     // 玩家系强化：高爆装药放大半径（含地形破坏）
     if (ownerTeam === 0 && this.modifiers.blastMul) r = Math.round(r * this.modifiers.blastMul);
+    if (this.mode === 'online' && !opts.force) {
+      this.emit({ type: 'boomNet', x, y, r, dmg, knock, ownerTeam, boom: opts.boom });
+    }
     this.terrain.destroyCircle(x, y, r);
     this.emit({ type: 'explosion', x, y, r, boom: opts.boom, silent: opts.silent });
     const rr = r + 10;
