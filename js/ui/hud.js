@@ -20,6 +20,8 @@ export class HUD {
     this.moveHeld = 0;    // -1/0/1
     this.moveTouchId = null;
     this.chargeTouchId = null;
+    this.aimHeld = 0;     // -1=抬 / 1=压
+    this.aimTouchId = null;
     this.rects = {};
     this.bannerT = 0;
     this.toast = null; this.toastT = 0;
@@ -58,11 +60,14 @@ export class HUD {
       if (inside(R.skill)) return { act: 'skill' };
       if (inside(R.end)) return { act: 'end' };
       if (inside(R.jump)) { return { act: 'jump' }; }
+      if (inside(R.aimUp)) { this.aimHeld = -1; this.aimTouchId = 'U'; return { act: 'hold' }; }
+      if (inside(R.aimDn)) { this.aimHeld = 1; this.aimTouchId = 'D'; return { act: 'hold' }; }
       if (inside(R.moveL)) { this.moveHeld = -1; this.moveTouchId = 'L'; return { act: 'hold' }; }
       if (inside(R.moveR)) { this.moveHeld = 1; this.moveTouchId = 'R'; return { act: 'hold' }; }
       if (inside(R.fire)) { this.chargeTouchId = 'F'; return { act: 'fireDown' }; }
     } else if (type === 'end') {
       let ret = null;
+      if (this.aimTouchId) { this.aimHeld = 0; this.aimTouchId = null; ret = { act: 'hold' }; }
       if (this.moveTouchId) { this.moveHeld = 0; this.moveTouchId = null; ret = { act: 'hold' }; }
       if (this.chargeTouchId) { this.chargeTouchId = null; ret = { act: 'fireUp' }; }
       return ret;
@@ -197,7 +202,13 @@ export class HUD {
     R.moveL = { x: margin, y: by, w: bs, h: bs };
     R.moveR = { x: margin + bs + 8, y: by, w: bs, h: bs };
     R.jump = { x: margin + bs * 2 + 16, y: by, w: bs * 0.82, h: bs * 0.82 };
+    // 抬/压枪口（瞄准角度），放移动键上方一行
+    const as = bs * 0.72;
+    R.aimUp = { x: margin, y: by - as - 8, w: as, h: as };
+    R.aimDn = { x: margin + as + 6, y: by - as - 8, w: as, h: as };
     const chargingAim = humanCtrl && active && active.charging; // 蓄力中：左右按钮=调角度
+    this.drawBtn(ctx, R.aimUp, '抬', this.aimHeld === -1, 0.72);
+    this.drawBtn(ctx, R.aimDn, '压', this.aimHeld === 1, 0.72);
     this.drawBtn(ctx, R.moveL, '◀', this.moveHeld === -1, 1, chargingAim ? '#ffe94d' : null);
     this.drawBtn(ctx, R.moveR, '▶', this.moveHeld === 1, 1, chargingAim ? '#ffe94d' : null);
     this.drawBtn(ctx, R.jump, '↑', false, 0.8);

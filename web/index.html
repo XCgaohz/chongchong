@@ -5,8 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <title>虫虫大战</title>
   <style>
-    html, body { margin: 0; padding: 0; height: 100%; overflow: hidden; background: #0a1420; }
-    canvas { outline: none; }
+    html, body {
+      margin: 0; padding: 0; height: 100%; overflow: hidden; background: #0a1420;
+      user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent; overscroll-behavior: none;
+    }
+    canvas { outline: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
   </style>
 </head>
 <body>

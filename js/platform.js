@@ -106,6 +106,7 @@ export function createOffscreenCanvas(w, h) {
 
 // ---------- 触摸输入 ----------
 const touchCbs = { start: [], move: [], end: [] };
+const wheelCbs = [];
 
 function normalizeWxPoints(e, type) {
   const raw = type === 'end' ? (e.changedTouches || e.touches || []) : (e.touches || e.changedTouches || []);
@@ -117,6 +118,7 @@ function dispatchTouch(type, pts) {
 }
 
 export function onTouch(type, cb) { touchCbs[type].push(cb); }
+export function onWheel(cb) { wheelCbs.push(cb); }
 
 export function initTouch(canvas) {
   if (wxApi) {
@@ -125,6 +127,10 @@ export function initTouch(canvas) {
     wxApi.onTouchEnd(e => dispatchTouch('end', normalizeWxPoints(e, 'end')));
     wxApi.onTouchCancel(e => dispatchTouch('end', normalizeWxPoints(e, 'end')));
   } else {
+    // 微信/浏览器内核会把 canvas 当图片弹长按菜单（搜一搜/翻译），document 级拦死
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('selectstart', e => e.preventDefault());
+    try { window.oncontextmenu = () => false; } catch (_) {}
     // 模拟横屏时坐标换算：画布坐标 x=clientY, y=innerWidth-clientX
     const pt = e => {
       if (simLandscape) return [{ id: e.pointerId ?? 0, x: e.clientY, y: window.innerWidth - e.clientX }];
@@ -138,6 +144,7 @@ export function initTouch(canvas) {
     canvas.addEventListener('pointerup', e => dispatchTouch('end', pt(e)));
     canvas.addEventListener('pointercancel', e => dispatchTouch('end', pt(e)));
     canvas.addEventListener('contextmenu', e => e.preventDefault());
+    window.addEventListener('wheel', e => { for (const cb of wheelCbs) cb(e.deltaY); }, { passive: true });
   }
 }
 

@@ -6,6 +6,7 @@ export class Camera {
   constructor() {
     this.x = 640; this.y = 360;
     this.zoom = 1;
+    this.zoomMul = ZOOM_MUL; // 玩家可调拉近倍率（双指捏合/滚轮），战斗场景钳制 1.0~2.8
     this.panX = 0; // 玩家滑屏手动横移（世界偏移，向右看为正）
     this.shakeAmp = 0; this.shakeT = 0;
     this.ox = 0; this.oy = 0; // 震屏偏移
@@ -24,14 +25,14 @@ export class Camera {
   addPunch(k) { this.punch = Math.min(0.1, (this.punch || 0) + k); }
 
   update(dt, viewW, viewH, worldW, worldH) {
-    // 基础缩放：世界适配视口再拉近 ZOOM_MUL，叠加爆炸前冲
+    // 基础缩放：世界适配视口再拉近玩家倍率，叠加爆炸前冲
     const fit = Math.min(viewW / worldW, viewH / worldH);
     if (this.punch > 0.001) {
       this.punch *= Math.pow(0.0015, dt);
-      this.zoom = fit * ZOOM_MUL * (1 + this.punch);
+      this.zoom = fit * this.zoomMul * (1 + this.punch);
     } else {
       this.punch = 0;
-      this.zoom = fit * ZOOM_MUL;
+      this.zoom = fit * this.zoomMul;
     }
     if (this.shakeAmp > 0.1) {
       this.shakeT += dt * 40;

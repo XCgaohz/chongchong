@@ -1,6 +1,6 @@
 // 主循环与场景管理
 import {
-  createScreenCanvas, initTouch, onTouch, onKey,
+  createScreenCanvas, initTouch, onTouch, onKey, onWheel,
   getSystemInfo, invalidateSystemInfo, refreshLayout, requestAnimationFrame, storage, vibrate, IS_WX
 } from './platform.js';
 import { Sfx } from './core/audio.js';
@@ -66,7 +66,11 @@ export class App {
 
   onPoint(type, pts) {
     if (type === 'start') this.sfx.unlock();
-    for (const p of pts) this.current.onPoint(type, p.x, p.y);
+    for (const p of pts) this.current.onPoint(type, p.x, p.y, p.id);
+  }
+
+  onWheel(dy) {
+    if (this.current.onWheel) this.current.onWheel(dy);
   }
 
   onKey(k, down) {
@@ -85,6 +89,7 @@ export function boot() {
   onTouch('move', pts => app.onPoint('move', pts));
   onTouch('end', pts => app.onPoint('end', pts));
   onKey((k, down) => app.onKey(k, down));
+  onWheel(dy => app.onWheel(dy));
   if (!IS_WX && typeof window !== 'undefined') {
     const onReflow = () => { refreshLayout(app.canvas); app.resize(); };
     window.addEventListener('resize', onReflow);

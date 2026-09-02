@@ -82,7 +82,12 @@ export class BattleScene {
     this.upgradeBtns = {};
     this.endBtns = {};
     this.vw = app.vw; this.vh = app.vh;
+    this.freeTouches = new Map(); // 空白处触摸（捏合缩放用，HUD 按钮上的手指不计入）
+    this.pinch = null;            // 双指缩放状态 {d0,z0,wx}
     this.time = 0;
+    // 首次操作提示（新触屏操作较多，展示一次）
+    this.hud.toast = '拖屏移视角 · 双指缩放 · 抬/压调角度';
+    this.hud.toastT = 4.5;
     // 玩家队皮肤帽子
     this.battle.teamBugs[0].forEach(w => {
       const sk = cfg.teams[0].skins && cfg.teams[0].skins[w.species];
@@ -252,7 +257,7 @@ export class BattleScene {
   }
 
   // ---------- 输入 ----------
-  onPoint(type, x, y) {
+  onPoint(type, x, y, id) {
     this.app.sfx.unlock();
     const b = this.battle;
     if (this.upgradeOverlay) { if (type === 'start') this.handleUpgradeClick(x, y); return; }
@@ -270,9 +275,36 @@ export class BattleScene {
       else if (act.act === 'fireUp') this.releaseFire();
       return;
     }
-    // 空白处：按住拖动=横移相机；轻点=瞄准
+    // 空白处触摸：单指拖动=横移相机、轻点=瞄准；双指捏合=缩放
+    const tid = id ?? 0;
     if (type === 'start') {
-      this.camDrag = { sx: x, sy: y, base: this.cam.panX, moved: false };
+      this.freeTouches.set(tid, { x, y });
+      if (this.freeTouches.size >= 2) {
+        const [a, t2] = [...this.freeTouches.values()];
+        this.pinch = {
+          d0: Math.max(20, Math.hypot(a.x - t2.x, a.y - t2.y)),
+          z0: this.cam.zoomMul,
+          wx: this.cam.screenToWorld((a.x + t2.x) / 2, 0, this.vw, this.vh).x
+        };
+        this.camDrag = null; // 双指接管，取消单指拖动
+      } else {
+        this.camDrag = { sx: x, sy: y, base: this.cam.panX, moved: false };
+      }
+      return;
+    }
+    if (this.freeTouches.has(tid)) { const p = this.freeTouches.get(tid); p.x = x; p.y = y; }
+    if (type === 'end') this.freeTouches.delete(tid);
+
+    if (this.pinch) {
+      if (this.freeTouches.size < 2) { this.pinch = null; this.camDrag = null; return; }
+      if (type === 'move') {
+        const [a, t2] = [...this.freeTouches.values()];
+        this.cam.zoomMul = clamp(this.pinch.z0 * Math.hypot(a.x - t2.x, a.y - t2.y) / this.pinch.d0, 1.0, 2.8);
+        // 以两指中点为缩放中心：中点处的世界坐标保持不动
+        const fit = Math.min(this.vw / b.worldW, this.vh / b.worldH);
+        const mx = (a.x + t2.x) / 2;
+        this.cam.panX = this.pinch.wx - this.cam.x - (mx - this.vw / 2) / (fit * this.cam.zoomMul);
+      }
       return;
     }
     const d = this.camDrag;
@@ -324,6 +356,11 @@ export class BattleScene {
     }
   }
 
+  // 桌面滚轮缩放视角
+  onWheel(dy) {
+    this.cam.zoomMul = clamp(this.cam.zoomMul * (dy > 0 ? 0.9 : 1.1), 1.0, 2.8);
+  }
+
   handleHumanFrameInput(dt) {
     const b = this.battle;
     if (!this.humanTurn() || b.phase !== 'play') return;
@@ -339,6 +376,7 @@ export class BattleScene {
     } else {
       bug.wantMove = dir;
     }
+    if (this.hud.aimHeld) bug.aim += this.hud.aimHeld * dt * 2.2; // 抬/压按钮（随时可用）
     if (isKey('ArrowUp')) bug.aim -= dt * 1.8;
     if (isKey('ArrowDown')) bug.aim += dt * 1.8;
   }
