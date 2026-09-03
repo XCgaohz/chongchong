@@ -102,6 +102,12 @@ export class BattleScene {
     if (cfg.mode === 'online') {
       this.net = cfg.net;
       this.myTeam = cfg.myTeam;
+      this.iAmHost = cfg.isHost !== false;   // AI 回合的权威模拟端（房主）
+      this.allyFiredTurn = -1;               // 本回合队友已开火（本端转视觉）
+      this.myFiredThisTurn = -1;             // 本回合本端已真实开火
+      this.lastTurnCnt = -1;
+      this.replayingFire = false;            // 正在重放远端 fire（不再二次广播）
+      this.aiStateT = 0;
       this.net.onMessage(m => this.onNetMsg(m));
     }
   }
@@ -120,9 +126,28 @@ export class BattleScene {
     if (!b || this.mode !== 'online') return;
     switch (m.t) {
       case 'fire':
-        // 远端开火：本地模拟重放同一发
-        if (b.phase === 'play' && b.turnTeam !== this.myTeam && !b.over) {
-          b.fire(m.weapon, m.angle, m.power);
+        // 远端开火：本地模拟重放同一发（观战端/队友端只是视觉，爆炸以权威 boom 为准）
+        // 不限 phase：网络延迟下消息常在 settle/banner 阶段到达，丢弃会造成两端地形分叉
+        if (!b.over && b.activeBug) {
+          this.replayingFire = true;
+          try {
+            if (b.turnTeam === this.myTeam) {
+              // 队友抢先开火：切断本地操作，跟随同一发
+              const bug = b.activeBug;
+              if (bug) { bug.charging = false; bug.charge = 0; }
+              if (this.myFiredThisTurn !== b.turnCount) this.allyFiredTurn = b.turnCount;
+            }
+            b.fire(m.weapon, m.angle, m.power);
+          } finally { this.replayingFire = false; }
+        }
+        break;
+      case 'aiState':
+        // 观战端：跟随权威端广播的 AI 虫位置（仅视觉）
+        if (b.teams[m.team] && b.teams[m.team].controller === 'ai' && b.netGhost) {
+          for (const p of m.pos) {
+            const w = b.bugs.find(x => x.teamIdx === m.team && x.idx === p[0]);
+            if (w && !w.dead) { w.x = p[1]; w.y = p[2]; w.facing = p[3]; }
+          }
         }
         break;
       case 'state':
@@ -145,7 +170,8 @@ export class BattleScene {
         break;
       case 'boom':
         // 行动方权威爆炸：清掉本地视觉子弹，按对方参数重放（弹坑/伤害/击退完全一致）
-        if (m.turn === b.turnCount && !b.over) {
+        // 不做回合校验：网络延迟下迟到补炸是正确行为（同参数 destroyCircle 幂等）
+        if (!b.over) {
           b.projectiles.length = 0;
           b.explode(m.x, m.y, m.r, m.dmg, m.knock, m.team, { force: true, boom: m.boom });
         }
@@ -216,20 +242,20 @@ export class BattleScene {
       case 'toast': this.hud.showToast(e.text); break;
       case 'gunshot': this.fx.explosion(e.x, e.y, 9); break;
       case 'fired':
-        // 联机：本地队开火 → 广播指令给对手重放
-        if (this.mode === 'online' && b.turnTeam === this.myTeam && this.net) {
+        // 联机：真实模拟端（自己开火 / 权威端 AI 开火）广播指令，供其他端视觉预演
+        if (this.mode === 'online' && this.net && !b.netGhost && !this.replayingFire) {
           this.net.send({ t: 'fire', team: b.turnTeam, weapon: e.weapon, angle: +Number(e.angle).toFixed(4), power: +Number(e.power).toFixed(3) });
         }
         break;
       case 'boomNet':
-        // 联机：本地（行动方）每一次爆炸 → 广播权威爆点给对手
-        if (this.mode === 'online' && this.net) {
+        // 联机：真实模拟端的每一次爆炸 → 广播权威爆点
+        if (this.mode === 'online' && this.net && !b.netGhost) {
           this.net.send({ t: 'boom', turn: b.turnCount, x: +e.x.toFixed(1), y: +e.y.toFixed(1), r: e.r, dmg: e.dmg, knock: e.knock, team: e.ownerTeam, boom: e.boom });
         }
         break;
       case 'turnEnd':
-        // 联机：行动方回合结束 → 广播虫子状态快照
-        if (this.mode === 'online' && b.turnTeam === this.myTeam && this.net) {
+        // 联机：真实模拟端回合结束 → 广播虫子状态快照
+        if (this.mode === 'online' && !b.netGhost && this.net) {
           this.net.send({
             t: 'state', turn: b.turnCount,
             bugs: b.bugs.map(w => ({ team: w.teamIdx, idx: w.idx, x: +w.x.toFixed(1), y: +w.y.toFixed(1), hp: w.hp, dead: w.dead }))
@@ -350,6 +376,7 @@ export class BattleScene {
     if (this.humanTurn() && b.phase === 'play' && bug.charging) {
       bug.charging = false;
       this.cam.panX = 0; // 发射后相机回中，跟随子弹
+      this.myFiredThisTurn = b.turnCount; // 本端真实开火（不再转队友视觉）
       b.fire(this.hud.getSelWeapon(b.turnTeam), bug.aim, Math.max(0.12, bug.charge));
     } else {
       bug.charging = false;
@@ -403,8 +430,21 @@ export class BattleScene {
   // ---------- 更新 ----------
   update(dt) {
     const b = this.battle;
-    // 联机：观战回合本地爆炸只做视觉（netGhost），权威爆点由行动方广播
-    if (this.mode === 'online') b.netGhost = b.turnTeam !== this.myTeam;
+    // 联机：回合换人时清空开火标记
+    if (this.mode === 'online' && b.turnCount !== this.lastTurnCnt) {
+      this.lastTurnCnt = b.turnCount;
+      this.allyFiredTurn = -1;
+      this.myFiredThisTurn = -1;
+    }
+    // 联机：本端是否只是"视觉预演"（真实爆炸以权威端广播的 boom 为准）
+    //  - AI 回合：房主端权威模拟，其余端观战
+    //  - 真人回合：行动队真实模拟；队友抢先开火后本端转视觉
+    if (this.mode === 'online') {
+      const t = b.teams[b.turnTeam];
+      const allyView = b.turnTeam === this.myTeam && b.turnCount === this.allyFiredTurn && this.myFiredThisTurn !== b.turnCount;
+      b.netGhost = t && t.controller === 'ai' ? !this.iAmHost
+        : (b.turnTeam !== this.myTeam ? true : allyView);
+    }
     // 命中停顿：除了 HUD 一切冻结，放大打击感
     if (this.hitStop > 0) {
       this.hitStop -= dt;
@@ -430,11 +470,23 @@ export class BattleScene {
     let n = 0;
     while (this.acc >= STEP && n < 5) {
       for (let i = 0; i < this.controllers.length; i++) {
-        if (this.controllers[i] && b.turnTeam === i) this.controllers[i].update(STEP);
+        if (!this.controllers[i] || b.turnTeam !== i) continue;
+        // 联机观战端不跑 AI（AI 虫位置由权威端广播 aiState 同步）
+        if (this.mode === 'online' && b.netGhost && b.teams[i].controller === 'ai') continue;
+        this.controllers[i].update(STEP);
       }
       b.update(STEP);
       this.acc -= STEP;
       n++;
+    }
+    // AI 回合：权威端定期广播 AI 虫位置，供观战端同步画面
+    if (this.mode === 'online' && this.net && !b.netGhost && b.teams[b.turnTeam] && b.teams[b.turnTeam].controller === 'ai') {
+      this.aiStateT -= dt;
+      if (this.aiStateT <= 0) {
+        this.aiStateT = 0.1;
+        const pos = b.teamBugs[b.turnTeam].filter(w => !w.dead).map(w => [w.idx, +w.x.toFixed(1), +w.y.toFixed(1), w.facing]);
+        this.net.send({ t: 'aiState', turn: b.turnCount, team: b.turnTeam, pos });
+      }
     }
 
     // 相机跟随：爆炸停留 > 空袭飞机 > 飞行子弹 > 当前虫子
